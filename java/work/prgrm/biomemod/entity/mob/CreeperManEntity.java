@@ -5,8 +5,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.monster.CreeperEntity;
-import net.minecraft.entity.monster.EndermiteEntity;
 import net.minecraft.entity.monster.MonsterEntity;
 import net.minecraft.entity.passive.PandaEntity;
 import net.minecraft.entity.passive.PigEntity;
@@ -33,7 +31,6 @@ import work.prgrm.biomemod.init.ModEntityType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.function.Predicate;
 
 @OnlyIn(
         value = Dist.CLIENT,
@@ -48,7 +45,6 @@ public class CreeperManEntity extends MonsterEntity implements IChargeableMob{
     private int lastActiveTime;
     private int timeSinceIgnited = 0;
     private int fuseTime = 30;
-    private int teleportTime;
 
     public CreeperManEntity(final EntityType<? extends CreeperManEntity> type,final World worldIn) {
         super(type, worldIn);
@@ -73,8 +69,8 @@ public class CreeperManEntity extends MonsterEntity implements IChargeableMob{
         this.goalSelector.addGoal(5, new LookRandomlyGoal(this));
         this.goalSelector.addGoal(5, new RandomWalkingGoal(this,0.3));
         this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
-        this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, PigEntity.class,true));
-        this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, PlayerEntity.class, true));
+        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, PigEntity.class,true));
+        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, PlayerEntity.class, true));
     }
 
     protected void registerAttributes(){
@@ -87,15 +83,11 @@ public class CreeperManEntity extends MonsterEntity implements IChargeableMob{
     protected void registerData(){
         super.registerData();
         this.dataManager.register(STATE, -1);
-        this.dataManager.register(POWERED, false);
         this.dataManager.register(IGNITED, false);
     }
 
     public void writeAdditional(CompoundNBT compound){
         super.writeAdditional(compound);
-        if(this.dataManager.get(POWERED)){
-            compound.putBoolean("powered",true);
-        }
         compound.putShort("Fuse", (short)this.fuseTime);
         compound.putByte("ExplosionRadius", (byte)this.explosionRadius);
         compound.putBoolean("ignited", this.hasIgnited());
@@ -103,7 +95,6 @@ public class CreeperManEntity extends MonsterEntity implements IChargeableMob{
 
     public void readAdditional(CompoundNBT compound) {
         super.readAdditional(compound);
-        this.dataManager.set(POWERED, compound.getBoolean("powered"));
 
         if (compound.contains("ExplosionRadius", 99)) {
             this.explosionRadius = compound.getByte("ExplosionRadius");
@@ -255,13 +246,6 @@ public class CreeperManEntity extends MonsterEntity implements IChargeableMob{
         return this.dataManager.get(POWERED);
     }
 
-    public boolean func_226537_et_() {
-        return this.dataManager.get(field_226535_bx_);
-    }
-
-    public void func_226538_eu_() {
-        this.dataManager.set(field_226535_bx_, true);
-    }
 
 
     protected boolean canDropLoot(){return true;}
@@ -296,9 +280,8 @@ public class CreeperManEntity extends MonsterEntity implements IChargeableMob{
     private void explode(){
         if(!this.world.isRemote){
             Explosion.Mode explosion$mode = net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(this.world, this) ? Explosion.Mode.DESTROY : Explosion.Mode.NONE;
-            float f = this.func_225509_J__() ? 2.0F : 1.0F;
             this.dead = true;
-            this.world.createExplosion(this, this.getPosX(), this.getPosY(), this.getPosZ(), (float)this.explosionRadius * f, explosion$mode);
+            this.world.createExplosion(this, this.getPosX(), this.getPosY(), this.getPosZ(), (float)this.explosionRadius, explosion$mode);
             this.remove();
         }
     }

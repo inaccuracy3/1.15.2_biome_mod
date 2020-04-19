@@ -16,5 +16,4 @@ public class ModBiome {
     public static final RegistryObject<Biome> IRON_BIOME = BIOMES.register("iron_biome", IronBiome::new);
     public static final RegistryObject<Biome> FRAGILE_BIOME = BIOMES.register("fragile_biome", FragileBiome::new);
 
-
 }

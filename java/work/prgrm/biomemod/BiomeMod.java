@@ -1,11 +1,8 @@
 package work.prgrm.biomemod;
 
 import net.minecraft.entity.EntityClassification;
-import net.minecraft.entity.EntitySpawnPlacementRegistry;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.monster.MonsterEntity;
 import net.minecraft.world.biome.*;
-import net.minecraft.world.gen.Heightmap;
 import net.minecraftforge.common.BiomeManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -14,11 +11,10 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.ForgeRegistries;
 import work.prgrm.biomemod.init.BiomeRegister;
 import work.prgrm.biomemod.init.ModBiome;
 import work.prgrm.biomemod.init.ModEntityType;
-import work.prgrm.biomemod.init.Unregister;
+import work.prgrm.biomemod.world.biome.FragileBiome;
 import work.prgrm.biomemod.world.biome.IronBiome;
 
 @Mod(BiomeMod.MOD_ID)
@@ -37,8 +33,9 @@ public class BiomeMod {
         ModEntityType.ENTITY_TYPES.register(modEventBus);
     }
     private void setup(final FMLCommonSetupEvent event){
-        BiomeRegister.addBiomes(BiomeRegister.IRON_BIOME, BiomeManager.BiomeType.COOL,5);
+        BiomeRegister.addBiomes(BiomeRegister.IRON_BIOME, BiomeManager.BiomeType.COOL,10);
         BiomeRegister.addBiomes(BiomeRegister.FRAGILE_BIOME, BiomeManager.BiomeType.DESERT,10);
+
     }
 
     private void clientSetup(final FMLClientSetupEvent event){
@@ -46,7 +43,7 @@ public class BiomeMod {
 
     private void loadComplete(final FMLLoadCompleteEvent event){
         IronBiome.generate((IronBiome) ModBiome.IRON_BIOME.get(),EntityClassification.MONSTER,new Biome.SpawnListEntry(ModEntityType.CREEPER_MAN.get(),100,1,2));
-        IronBiome.generate((IronBiome) ModBiome.IRON_BIOME.get(),EntityClassification.MONSTER,new Biome.SpawnListEntry(EntityType.SKELETON,100,4,4));
+        FragileBiome.generate((FragileBiome) ModBiome.FRAGILE_BIOME.get(),EntityClassification.MONSTER,new Biome.SpawnListEntry(ModEntityType.SLEEPER.get(),100,3,3));
     }
 
 
